@@ -1,0 +1,153 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+  GUEST
+}
+
+enum Type {
+  SHIPPING
+  BILLING
+
+}
+
+model User {
+  id         String  @id @default(cuid())
+  email      String  @unique
+  first_name String?
+  last_name  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password           Password?
+  role               Role       @default(GUEST)
+  notes              Note[]
+  products           Product[]
+  cart               CartItem[]
+  orders             Order[]
+  addresses          Address[]
+}
+
+model Password {
+  hash String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+  passwordResetToken String?
+  passwordResetDate  DateTime?
+}
+
+model Note {
+  id    String @id @default(cuid())
+  title String
+  body  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  description  String
+  featured_img String
+  gallery      String[]
+  published    Boolean  @default(false)
+  price        Decimal
+  printful_id  Int
+  external_id  String
+  variants     Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  categories Category[]
+  cartitems  CartItem[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String
+  image       String
+  order       Int?
+  featured    Boolean  @default(false)
+  products    Product[]
+}
+
+model CartItem {
+  id                  String  @id @default(cuid())
+  quantity            Int     @default(1)
+  color               String?
+  size                String?
+  external_variant_id String
+  product             Product @relation(fields: [productId], references: [id])
+  user                User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId              String?
+  deviceId            String?
+  productId           String
+  addedAt             DateTime @default(now())
+}
+
+model OrderItem {
+  id                  String  @id @default(cuid())
+  name                String
+  description         String
+  featured_img        String
+  price               Decimal
+  quantity            Int     @default(1)
+  color               String?
+  size                String?
+  external_variant_id String
+  order               Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId             String?
+
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  printfulTotal Decimal
+  total         Decimal
+  tax           Decimal
+  shipping      Decimal
+  charge        String
+  printfulId    Int
+  items         OrderItem[]
+  addresses     Json
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        String
+}
+
+model Address {
+  id           String   @id @unique @default(cuid())
+  createdAt    DateTime @default(now())
+  type         Type     @default(SHIPPING)
+  first_name   String
+  last_name    String
+  address1     String
+  address2     String?
+  city         String
+  state_code   String?
+  country_code String
+  zip          String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       String
+}
