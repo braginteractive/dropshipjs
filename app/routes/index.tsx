@@ -125,7 +125,7 @@ export default function Index() {
           framework provided by Remix!
         </p>
         <div className="mt-10 flex justify-center gap-x-6">
-          <Button to="/">
+          <Button href="https://github.com/braginteractive/dropshipjs">
             <svg
               viewBox="0 0 24 24"
               aria-hidden="true"
