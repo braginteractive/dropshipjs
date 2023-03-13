@@ -38,7 +38,7 @@ const features = [
     image: screenshotDashboard,
   },
   {
-    title: "Primsa",
+    title: "Prisma",
     description:
       "Prisma provides a nice database ORM to work with your custom models and queries.",
     image: screenshotPrisma,
